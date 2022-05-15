@@ -2,9 +2,9 @@
   "name": "cintoo",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
-    "start": "ts-node-dev --respawn src/index.ts"
+    "start": "ts-node-dev --respawn src/app.ts"
   },
   "keywords": [],
   "author": "",

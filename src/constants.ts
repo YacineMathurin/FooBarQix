@@ -1,28 +1,37 @@
 /**  Obstacle tag in the city symbolised by X */
-export const obstacleTag: string = "X";
+export const OBSTACLE_TAG: string = "X";
 /**  Border tag of the city symbolised by # */
-export const borderTag: string = "#";
+export const BORDER_TAG: string = "#";
 /**  The bot's starting position tag symbolised by # */
-export const positionTag: string = "@";
+export const POSITION_TAG: string = "@";
 /** Beer tag symbolised by B */
-export const beerTag: string = "B";
+export const BEER_TAG: string = "B";
 /** Inverter tag symbolised by I */
-export const inverterTag: string = "I";
+export const INVERTER_TAG: string = "I";
 /** Teleporter tag symbolised by T */
-export const teleporterTag: string = "T";
+export const TELEPORTER_TAG: string = "T";
 /** Gave over tag symbolised by $ */
-export const gameOverTag: string = "$";
+export const GAMEOVER_TAG: string = "$";
 /** Head to south tag symbolised by S */
-export const southTag: string = "S";
+export const SOUTH_TAG: string = "S";
 /** Head to east tag symbolised by E */
-export const eastTag: string = "E";
+export const EAST_TAG: string = "E";
 /** Head to north tag symbolised by N */
-export const northTag: string = "N";
+export const NORTH_TAG: string = "N";
 /** Head to west tag symbolised by W */
-export const westTag: string = "W";
+export const WEST_TAG: string = "W";
 /** Type of the list of Directions */
-export interface Directions {
+export interface Context {
     headTo: string,
     step: number,
-    modifier: () => void
+    modifier: (currentPositionIndex: number) => number
+}
+/** Type of respose from handleContext  */
+export interface RespContext {
+    currentPositionIndex: number,
+    context: Context,
+    directionIndex: number, 
+    shouldTeleport: boolean, 
+    forwardMode: boolean, 
+    drunk: boolean, 
 }
