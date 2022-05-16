@@ -3,7 +3,7 @@ import { startup } from "./startup";
 import { handleTeleporting, handleContext, directions } from "./functions";
 const { GAMEOVER_TAG, POSITION_TAG } = Const;
 
-const {map} = startup();
+let { map } = startup();
 let currentPositionIndex: number = map.indexOf(POSITION_TAG);
 
 let nextIdx: number = 0;
@@ -20,35 +20,41 @@ const setState = (
         context: newContext,
         directionIndex: newDirectionIndex, 
         shouldTeleport: newShouldTeleport, 
-        forwardMode: newForwardMode, 
-        drunk: newDrunk, 
+        forwardMode: newForwardMode,   
+        drunk: newDrunk,
+        map: newMap
     }: Const.RespContext) => 
 {
-    console.log(newCurrentPositionIndex);
+    console.log("newDirectionIndex", newContext, "forwardMode", newForwardMode);
 
     currentPositionIndex = newCurrentPositionIndex
     context = newContext
     directionIndex = newDirectionIndex
     shouldTeleport = newShouldTeleport
     forwardMode = newForwardMode
-    drunk = newDrunk
+    drunk = newDrunk,
+    map = newMap
 }
 // We dectect the tag symbol at next step then move accordingly
-const main = () => {
-    if(shouldTeleport) {
-        const {shouldTeleport: resShouldTeleport, currentPositionIndex: respCurrentPositionIndex} = handleTeleporting(currentPositionIndex);
+const main = () => {  
+    // console.log(drunk);
+
+    if(shouldTeleport) { 
+        const {shouldTeleport: resShouldTeleport, currentPositionIndex: respCurrentPositionIndex} = handleTeleporting(currentPositionIndex, map);
         shouldTeleport = resShouldTeleport;
         currentPositionIndex = respCurrentPositionIndex;
         return;
     }
     nextIdx = currentPositionIndex + context["step"];
-    const res = handleContext(map[nextIdx], currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx);
+    const res = handleContext(map[nextIdx], currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map);
     if(res)
         setState(res)
 }
 
-// while(map[nextIdx] !== GAMEOVER_TAG)
+// while(map[nextIdx] !== GAMEOVER_TAG) main() 
+ main();   
  main();
+ main(); 
  main();
  main();
 

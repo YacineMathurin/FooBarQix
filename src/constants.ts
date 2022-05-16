@@ -20,6 +20,10 @@ export const EAST_TAG: string = "E";
 export const NORTH_TAG: string = "N";
 /** Head to west tag symbolised by W */
 export const WEST_TAG: string = "W";
+/** Step for directions array in forward mode  */
+export const STEP_FORWARD: number = 1;
+/** Step for directions array in backward mode  */
+export const STEP_BACKWARD: number = -1;
 /** Type of the list of Directions */
 export interface Context {
     headTo: string,
@@ -34,4 +38,5 @@ export interface RespContext {
     shouldTeleport: boolean, 
     forwardMode: boolean, 
     drunk: boolean, 
+    map: string[]
 }
