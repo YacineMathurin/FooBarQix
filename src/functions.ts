@@ -80,8 +80,14 @@ const handleContext = (exp = " ", currentPositionIndex = 0, directionIndex = 0, 
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
                 break;
             }
-            responseResolveOutput = setDirectionIndex(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map);
-            // responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
+            responseResolveOutputObstacles = setDirectionIndex(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map);
+            responseResolveOutput.currentPositionIndex = responseResolveOutputObstacles.currentPositionIndex;
+            responseResolveOutput.context = responseResolveOutputObstacles.context;
+            directionIndex = responseResolveOutputObstacles.directionIndex
+            shouldTeleport = responseResolveOutputObstacles.shouldTeleport
+            forwardMode = responseResolveOutputObstacles.forwardMode
+            drunk = responseResolveOutputObstacles.drunk
+            map = responseResolveOutputObstacles.map
             break;
         case BORDER_TAG:
             console.log("BORDER_TAG", currentPositionIndex);

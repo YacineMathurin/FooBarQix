@@ -15,7 +15,7 @@ let shouldTeleport:  boolean = false;
 let context = directions[directionIndex];
 
 const setState = (
-    {
+    { 
         currentPositionIndex: newCurrentPositionIndex,
         context: newContext,
         directionIndex: newDirectionIndex, 
@@ -37,7 +37,7 @@ const setState = (
 }
 // We dectect the tag symbol at next step then move accordingly
 const main = () => {  
-    // console.log(drunk);
+    console.log(map);
 
     if(shouldTeleport) { 
         const {shouldTeleport: resShouldTeleport, currentPositionIndex: respCurrentPositionIndex} = handleTeleporting(currentPositionIndex, map);
@@ -46,16 +46,22 @@ const main = () => {
         return;
     }
     nextIdx = currentPositionIndex + context["step"];
+    console.log("map[nextIdx]", map[nextIdx]);
+    
+    if (map[currentPositionIndex] === GAMEOVER_TAG) {
+        return
+    }
     const res = handleContext(map[nextIdx], currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map);
     if(res)
         setState(res)
 }
 
-// while(map[nextIdx] !== GAMEOVER_TAG) main() 
- main();   
- main();
- main(); 
- main();
- main();
+while(map[currentPositionIndex] !== GAMEOVER_TAG) main() 
+//  main();   
+//  main();
+//  main(); 
+//  main();
+//  main();
+//  main();
 
 // MUST DEAL WITH LOTS OF RETURNED VALUES
