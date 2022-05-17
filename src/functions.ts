@@ -25,11 +25,11 @@ export function functions(filename:string) {
         {headTo: "SOUTH", step: colNumbers, modifier: moveToSouth},
         {headTo: "EAST", step: 1, modifier: moveToEast},
         {headTo: "NORTH", step: -colNumbers, modifier: moveToNorth}, 
-        {headTo: "WEST", step: -1, modifier: moveToWest}
-    ];
-    // ContextFn
+        {headTo: "WEST", step: -1, modifier: moveToWest}  
+    ];    
+    // ContextFn 
     const handleContext = (exp = " ", currentPositionIndex = 0, directionIndex = 0, shouldTeleport = false, forwardMode = true, drunk = false, nextIdx = 0, map: string[]) => {
-        // console.log("Next symbole", exp, directionIndex);
+        // console.log("Next symbole", exp);
         let responseResolveOutput = {currentPositionIndex: 0, context: directions[0]}
         let responseResolveOutputObstacles = {
             currentPositionIndex,
@@ -43,20 +43,26 @@ export function functions(filename:string) {
         switch (exp) {
             case SOUTH_TAG:
                 // Get in then set next direction to head to
+                // console.log("S hit", directionIndex, currentPositionIndex);
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
+                // console.log("After", responseResolveOutput.currentPositionIndex, responseResolveOutput.context);
                 directionIndex = 0;
+                // responseResolveOutput.context = directions[directionIndex];
                 break;
             case EAST_TAG:
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
                 directionIndex = 1;
+                // responseResolveOutput.context = directions[directionIndex];
                 break;
             case NORTH_TAG:
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
                 directionIndex = 2;
+                // responseResolveOutput.context = directions[directionIndex];
                 break;
             case WEST_TAG:
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
                 directionIndex = 3;
+                // responseResolveOutput.context = directions[directionIndex];
                 break;
             case TELEPORTER_TAG:
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
@@ -74,12 +80,15 @@ export function functions(filename:string) {
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
                 break;
             case OBSTACLE_TAG:
+                // console.log("Hit Obs");
                 if(drunk) {
                     // Pass through and the obstacle is destroyed forever
                     map.splice(nextIdx, 1, " ");
                     responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
                     break;
                 }
+                if (forwardMode) directionIndex = 0;
+                else directionIndex = -1;
                 responseResolveOutputObstacles = setDirectionIndex(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map);
                 responseResolveOutput.currentPositionIndex = responseResolveOutputObstacles.currentPositionIndex;
                 responseResolveOutput.context = responseResolveOutputObstacles.context;
@@ -91,6 +100,8 @@ export function functions(filename:string) {
                 break;
             case BORDER_TAG:
                 // console.log("BORDER_TAG", currentPositionIndex);
+                if (forwardMode) directionIndex = 0;
+                else directionIndex = -1;
                 responseResolveOutputObstacles = setDirectionIndex(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map);
                 // responseResolveOutput should pass more of its values in final return 
                 responseResolveOutput.currentPositionIndex = responseResolveOutputObstacles.currentPositionIndex;
@@ -121,7 +132,7 @@ export function functions(filename:string) {
     const resolveOutput = (currentPositionIndex: number, directionIndex: number) => {
         let output = "";
         let context: Const.Context;
-        if(directionIndex > 0)
+        if(directionIndex >= 0)
             context = directions[directionIndex  % directions.length];
         else
             context = directions[(directions.length - (Math.abs(directionIndex)  % directions.length)) % directions.length];
@@ -143,13 +154,15 @@ export function functions(filename:string) {
             drunk,
             map
         }
+        // console.log("checkMovePossibility rec. directionIndex", directionIndex);
+
         let res = {obstacleAgain: false, responseResolveOutput: responseResolveOutput};
         let localContext = 0;
-        if(directionIndex > 0)
+        if(directionIndex >= 0)
             context = directions[directionIndex  % directions.length];
         else
             context = directions[(directions.length - (Math.abs(directionIndex)  % directions.length)) % directions.length];
-        // console.log("checkMovePossibility", currentPositionIndex);
+        // console.log("checkMovePossibility directionIndex", directionIndex, context);
         
         localContext = context["modifier"](currentPositionIndex);
         character = map[localContext]; 
@@ -180,12 +193,13 @@ export function functions(filename:string) {
             map
         }
         let res = {obstacleAgain: false, responseResolveOutput: responseResolveOutput};
-        // console.log("movePossibility", currentPositionIndex);
+        // console.log("movePossibility directionIndex", directionIndex);
 
         while (obstacleAgain) {
-            directionIndex += step;
+            // directionIndex += step;
             res = checkMovePossibility(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map);
             obstacleAgain = res.obstacleAgain;
+            if (obstacleAgain) directionIndex += step;
         }
         // console.log("movePossibility", res.responseResolveOutput);
         
@@ -203,7 +217,7 @@ export function functions(filename:string) {
             drunk,
             map
         }
-        // console.log("setDirectionIndex", currentPositionIndex);
+        // console.log("setDirectionIndex ", directionIndex);
 
         if(forwardMode) {
             return responseResolveOutput = movePossibility(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map, step);
@@ -215,7 +229,7 @@ export function functions(filename:string) {
     const handleTeleporting = (currentPositionIndex: number, map: string[]) => {
 
         // In fact, a native loop is faster on chrome that using indexOf
-        // console.log("before", currentPositionIndex);
+        // console.log("handleTeleporting", currentPositionIndex);
         let teleportToIndex: number = 0;
         for(let idx = 0; idx < map.length; idx++) {
             if(map[idx] === TELEPORTER_TAG && idx !== currentPositionIndex)
@@ -228,6 +242,4 @@ export function functions(filename:string) {
         return {shouldTeleport, currentPositionIndex: teleportToIndex};
     }
     return { handleContext, handleTeleporting, directions };
-}
-
-// MUST RETURN LOT OF THINGS
+} 
