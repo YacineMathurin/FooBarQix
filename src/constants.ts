@@ -20,6 +20,8 @@ export const EAST_TAG: string = "E";
 export const NORTH_TAG: string = "N";
 /** Head to west tag symbolised by W */
 export const WEST_TAG: string = "W";
+/** Returned value is case of infinite loop */
+export const LOOP_CASE: string = "LOOP";
 /** Step for directions array in forward mode  */
 export const STEP_FORWARD: number = 1;
 /** Step for directions array in backward mode  */
@@ -40,3 +42,15 @@ export interface RespContext {
     drunk: boolean, 
     map: string[]
 }
+/**
+ * let responseResolveOutput = {currentPositionIndex: 0, context: directions[0]}
+    let responseResolveOutputObstacles = {
+        currentPositionIndex,
+        context: { headTo: 'SOUTH', step: 5, modifier: moveToSouth },
+        directionIndex, 
+        shouldTeleport, 
+        forwardMode,   
+        drunk,
+        map
+    }
+ */

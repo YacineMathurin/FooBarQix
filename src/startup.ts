@@ -1,7 +1,7 @@
-import {textByLine} from "./filereader";
+import {filereader} from "./filereader";
 
-export function startup() {
-    
+export function startup(filename: string) {
+    const textByLine = filereader(filename);
     const LINE_BREAKER = "\r";
     let index: number = 0;
     let map: string[] = []; 
@@ -24,7 +24,7 @@ export function startup() {
             splitedRow.splice(splitedRow.indexOf("\n"), 1)
         }
         map = map.concat(splitedRow);
-        console.log("Row", row);
+        // console.log("Row", row);
     }
     // console.log(map); 
 
