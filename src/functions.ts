@@ -29,7 +29,7 @@ const directions: Const.Context[] = [
 ];
 // ContextFn
 const handleContext = (exp = " ", currentPositionIndex = 0, directionIndex = 0, shouldTeleport = false, forwardMode = true, drunk = false, nextIdx = 0, map: string[]) => {
-    console.log("Next symbole", exp, directionIndex);
+    // console.log("Next symbole", exp, directionIndex);
     let responseResolveOutput = {currentPositionIndex: 0, context: directions[0]}
     let responseResolveOutputObstacles = {
         currentPositionIndex,
@@ -65,7 +65,7 @@ const handleContext = (exp = " ", currentPositionIndex = 0, directionIndex = 0, 
             break;
         case INVERTER_TAG:
             forwardMode = !forwardMode;
-            console.log("forwardMode", forwardMode, "directionIndex", directionIndex);
+            // console.log("forwardMode", forwardMode, "directionIndex", directionIndex);
             
             responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
             break;
@@ -90,7 +90,7 @@ const handleContext = (exp = " ", currentPositionIndex = 0, directionIndex = 0, 
             map = responseResolveOutputObstacles.map
             break;
         case BORDER_TAG:
-            console.log("BORDER_TAG", currentPositionIndex);
+            // console.log("BORDER_TAG", currentPositionIndex);
             responseResolveOutputObstacles = setDirectionIndex(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map);
             // responseResolveOutput should pass more of its values in final return 
             responseResolveOutput.currentPositionIndex = responseResolveOutputObstacles.currentPositionIndex;
@@ -103,10 +103,10 @@ const handleContext = (exp = " ", currentPositionIndex = 0, directionIndex = 0, 
             break;
         
         default:
-            console.log("Default", currentPositionIndex, directionIndex); 
+            // console.log("Default", currentPositionIndex, directionIndex); 
             responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
     }
-    console.log("directionIndex before returning: ",exp, directionIndex);
+    // console.log("directionIndex before returning: ",exp, directionIndex);
     return {
         currentPositionIndex: responseResolveOutput.currentPositionIndex,
         context: responseResolveOutput.context,
@@ -127,7 +127,7 @@ const resolveOutput = (currentPositionIndex: number, directionIndex: number) => 
         context = directions[(directions.length - (Math.abs(directionIndex)  % directions.length)) % directions.length];
 
     output = context["headTo"];
-    console.log(output);
+    // console.log(output);
     currentPositionIndex = context["modifier"](currentPositionIndex);
     return { currentPositionIndex, context}
 }
@@ -180,7 +180,7 @@ const movePossibility = (exp = " ", currentPositionIndex = 0, directionIndex = 0
         map
     }
     let res = {obstacleAgain: false, responseResolveOutput: responseResolveOutput};
-    console.log("movePossibility", currentPositionIndex);
+    // console.log("movePossibility", currentPositionIndex);
 
     while (obstacleAgain) {
         directionIndex += step;
@@ -203,7 +203,7 @@ const setDirectionIndex = (exp = " ", currentPositionIndex = 0, directionIndex =
         drunk,
         map
     }
-    console.log("setDirectionIndex", currentPositionIndex);
+    // console.log("setDirectionIndex", currentPositionIndex);
 
     if(forwardMode) {
         return responseResolveOutput = movePossibility(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map, step);
@@ -215,13 +215,17 @@ const setDirectionIndex = (exp = " ", currentPositionIndex = 0, directionIndex =
 const handleTeleporting = (currentPositionIndex: number, map: string[]) => {
 
     // In fact, a native loop is faster on chrome that using indexOf
+    // console.log("before", currentPositionIndex);
+    let teleportToIndex: number = 0;
     for(let idx = 0; idx < map.length; idx++) {
         if(map[idx] === TELEPORTER_TAG && idx !== currentPositionIndex)
-            currentPositionIndex = idx
+            teleportToIndex = idx
     }
+    // console.log("teleportToIndex", teleportToIndex);
+
     const shouldTeleport = false;
     // return false
-    return {shouldTeleport, currentPositionIndex};
+    return {shouldTeleport, currentPositionIndex: teleportToIndex};
 }
 
 export { handleContext, handleTeleporting, directions };
