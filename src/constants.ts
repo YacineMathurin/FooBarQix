@@ -26,14 +26,20 @@ export const LOOP_CASE: string = "LOOP";
 export const STEP_FORWARD: number = 1;
 /** Step for directions array in backward mode  */
 export const STEP_BACKWARD: number = -1;
+/** Number of cycles to looping */
+export const CYCLES_TO_LOOP: number = 7;
+/** Forward mode priority starting point and going forward */
+export const FORWARD_MODE_PRIORITY = 0;
+/** Backward mode priority starting point and going backward */
+export const BACKWARD_MODE_PRIORITY = -1;
 /** Type of the list of Directions */
 export interface Context {
     headTo: string,
     step: number,
     modifier: (currentPositionIndex: number) => number
 }
-/** Type of respose from handleContext  */
-export interface RespContext {
+/** Type of response from handleContext  */
+export interface IRespContext {
     currentPositionIndex: number,
     context: Context,
     directionIndex: number, 
@@ -42,15 +48,28 @@ export interface RespContext {
     drunk: boolean, 
     map: string[]
 }
-/**
- * let responseResolveOutput = {currentPositionIndex: 0, context: directions[0]}
-    let responseResolveOutputObstacles = {
-        currentPositionIndex,
-        context: { headTo: 'SOUTH', step: 5, modifier: moveToSouth },
-        directionIndex, 
-        shouldTeleport, 
-        forwardMode,   
-        drunk,
-        map
-    }
- */
+export interface IResponseResolveOutput {
+    currentPositionIndex: number,
+    context: Context
+}
+export interface IResponseResolveOutputObstacles {
+    currentPositionIndex: number,
+    context: Context,
+    directionIndex: number, 
+    shouldTeleport: boolean, 
+    forwardMode: boolean,   
+    drunk: boolean,
+    map: string[]
+}
+export interface IResp {
+    obstacleAgain: boolean,
+    responseResolveOutput: IResponseResolveOutputObstacles
+};
+export interface IResponseHandleObstacles {
+    responseResolveOutput: IResponseResolveOutput,
+    directionIndex: number,
+    shouldTeleport: boolean,
+    forwardMode: boolean,
+    drunk: boolean,
+    map: string[]
+}

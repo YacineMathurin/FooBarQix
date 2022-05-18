@@ -1,15 +1,11 @@
 import * as Const from "./constants";
 import { startup } from "./startup";
 import { functions } from "./functions";
-const { GAMEOVER_TAG, POSITION_TAG, LOOP_CASE } = Const;
-const fs = require('fs');
-
-const content = 'Some content!';
-
-export function App(filename: string) {
-    const { handleTeleporting, handleContext, directions } = functions(filename);   
+const { GAMEOVER_TAG, POSITION_TAG, LOOP_CASE, CYCLES_TO_LOOP } = Const;
+ 
+export function App(filename: string) {  
+    const { handleTeleporting, handleContext, getContext, directions } = functions(filename);   
     let { map } = startup(filename);
-    const startPositionIndex: number = map.indexOf(POSITION_TAG);
     const gameoverPositionIndex: number = map.indexOf(GAMEOVER_TAG);
     let currentPositionIndex: number = map.indexOf(POSITION_TAG);
 
@@ -19,50 +15,34 @@ export function App(filename: string) {
     let forwardMode: boolean = true;
     let drunk:  boolean = false;
     let shouldTeleport:  boolean = false;
-    let processing:  boolean = true;
     let isLooped:  boolean | undefined;
     let context = directions[directionIndex];
     let outputList: string[] = [];
     let arrayCurrentPositionIndex: number[] = [];
 
     const storeCurrentPositionIndex = (currentPositionIndex: number) => {
-        let count = 0;
         arrayCurrentPositionIndex.push(currentPositionIndex);
-
+        /** After  CYCLES_TO_LOOP occurence of a currentPositionIndex, we are in a loop case */
         for(let i = 0; i < arrayCurrentPositionIndex.length; i++) {
             let count = 0;
             for(let j = 0; j < arrayCurrentPositionIndex.length; j++) {
                 if(arrayCurrentPositionIndex[i] === arrayCurrentPositionIndex[j]) count += 1;
             }
-            if(count === 7) {
+            if(count === CYCLES_TO_LOOP) {
                 isLooped = true;
                 break;
             }   
         }
-
-        // arrayCurrentPositionIndex.map(item => {
-        //     if (item == startPositionIndex) {
-        //         count += 1;
-        //         return 0;
-        //     }
-        //     return 0;
-        // });
-        // if(count === 3) {
-        //     isLooped = true;
-        // }  
     }
-    const setState = (
-        { 
+    const setState = ({ 
             currentPositionIndex: newCurrentPositionIndex,
             context: newContext,
             directionIndex: newDirectionIndex, 
             shouldTeleport: newShouldTeleport, 
             forwardMode: newForwardMode,   
             drunk: newDrunk,
-            map: newMap
-        }: Const.RespContext) => 
-    {
-        // console.log("newDirectionIndex", newContext, "forwardMode", newForwardMode);
+            map: newMap}: Const.IRespContext) => 
+        {
 
         currentPositionIndex = newCurrentPositionIndex
         context = newContext
@@ -73,15 +53,14 @@ export function App(filename: string) {
         map = newMap
 
         outputList.push(newContext.headTo);
+        
         if (gameoverPositionIndex == newCurrentPositionIndex) {
-            // Blunder died, tell its story
+            /** Blunder died, tell its story */
             isLooped = false;
         }
         storeCurrentPositionIndex(newCurrentPositionIndex);
-
     }
-    storeCurrentPositionIndex(startPositionIndex);
-    // We dectect the tag symbol at next step then move accordingly
+    /** We dectect the tag symbol at next step then move accordingly */ 
     const main = () => {
 
         if(shouldTeleport) { 
@@ -90,11 +69,7 @@ export function App(filename: string) {
             currentPositionIndex = respCurrentPositionIndex;
             return;
         }
-        if(directionIndex >= 0)
-            context = directions[directionIndex  % directions.length];
-        else
-            context = directions[(directions.length - (Math.abs(directionIndex)  % directions.length)) % directions.length];
-
+        context = getContext(directionIndex);  
 
         nextIdx = currentPositionIndex + context["step"];
         
@@ -102,21 +77,12 @@ export function App(filename: string) {
         
         if(res)
             setState(res);
-        // console.log(outputList);
     }
 
     while(map[currentPositionIndex] !== GAMEOVER_TAG && isLooped === undefined) main() 
-    // for (let index = 0; index < 27; index++) main();
     if (isLooped) { 
         return LOOP_CASE;
     } else {
-        // fs.writeFile('Huge res.txt', JSON.stringify(outputList), (err:any) => {}); 
         return outputList;
-        
     }
 }
-
-// Failed
-console.log(App("Multiple loops.txt"));
- 
-// console.log(App("Loop.txt"));   

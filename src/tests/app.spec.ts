@@ -4,7 +4,7 @@ import { _ALL_TOGETHER, _BREAKER_MODE, _BROKEN_WALL, _INVERTER, _LOOP, _MULTIPLE
 describe('Testing my App', () => {
 
     test('Simple moves', () => {
-        const filename = "simple-move.txt";
+        const filename = "Simple moves.txt";
         expect(App(filename)).toStrictEqual(_SIMPLE_MOVE)
     })
     test('Obstacles', () => {

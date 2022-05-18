@@ -11,68 +11,51 @@ const {
     INVERTER_TAG,
     BORDER_TAG,
     STEP_FORWARD, 
-    STEP_BACKWARD
+    STEP_BACKWARD,
+    BACKWARD_MODE_PRIORITY,
+    FORWARD_MODE_PRIORITY
 } = Const;
+
 export function functions(filename:string) {
     const { colNumbers } = startup(filename);
-    // ContextFn
     const moveToSouth: (currentPositionIndex: number) => number = (currentPositionIndex) =>   currentPositionIndex += directions[0]["step"];
     const moveToEast: (currentPositionIndex: number) => number = (currentPositionIndex) =>  currentPositionIndex += directions[1]["step"]
     const moveToNorth: (currentPositionIndex: number) => number = (currentPositionIndex) => currentPositionIndex += directions[2]["step"];
     const moveToWest: (currentPositionIndex: number) => number = (currentPositionIndex) => currentPositionIndex += directions[3]["step"];
-    // ContextFn
     const directions: Const.Context[] = [
         {headTo: "SOUTH", step: colNumbers, modifier: moveToSouth},
         {headTo: "EAST", step: 1, modifier: moveToEast},
         {headTo: "NORTH", step: -colNumbers, modifier: moveToNorth}, 
         {headTo: "WEST", step: -1, modifier: moveToWest}  
     ];    
-    // ContextFn 
-    const handleContext = (exp = " ", currentPositionIndex = 0, directionIndex = 0, shouldTeleport = false, forwardMode = true, drunk = false, nextIdx = 0, map: string[]) => {
-        // console.log("Next symbole", exp);
-        let responseResolveOutput = {currentPositionIndex: 0, context: directions[0]}
-        let responseResolveOutputObstacles = {
-            currentPositionIndex,
-            context: { headTo: 'SOUTH', step: 5, modifier: moveToSouth },
-            directionIndex, 
-            shouldTeleport, 
-            forwardMode,   
-            drunk,
-            map
-        }
+
+    const handleContext = (exp: string, currentPositionIndex: number, directionIndex: number, shouldTeleport: boolean, forwardMode: boolean, drunk: boolean, nextIdx: number, map: string[]): Const.IResponseResolveOutputObstacles => {
+        let responseResolveOutput = {currentPositionIndex: 0, context: directions[0]};
+        let responseHandleObstacles: Const.IResponseHandleObstacles;
         switch (exp) {
             case SOUTH_TAG:
-                // Get in then set next direction to head to
-                // console.log("S hit", directionIndex, currentPositionIndex);
+                /** Get in then set next direction to head to */
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
-                // console.log("After", responseResolveOutput.currentPositionIndex, responseResolveOutput.context);
                 directionIndex = 0;
-                // responseResolveOutput.context = directions[directionIndex];
                 break;
             case EAST_TAG:
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
                 directionIndex = 1;
-                // responseResolveOutput.context = directions[directionIndex];
                 break;
             case NORTH_TAG:
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
                 directionIndex = 2;
-                // responseResolveOutput.context = directions[directionIndex];
                 break;
             case WEST_TAG:
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
                 directionIndex = 3;
-                // responseResolveOutput.context = directions[directionIndex];
                 break;
             case TELEPORTER_TAG:
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
-                // The new responseResolveOutput could be what resolveOutput responded plus other props
                 shouldTeleport = true;
                 break;
             case INVERTER_TAG:
                 forwardMode = !forwardMode;
-                // console.log("forwardMode", forwardMode, "directionIndex", directionIndex);
-                
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
                 break;
             case BEER_TAG:
@@ -80,44 +63,33 @@ export function functions(filename:string) {
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
                 break;
             case OBSTACLE_TAG:
-                // console.log("Hit Obs");
                 if(drunk) {
-                    // Pass through and the obstacle is destroyed forever
+                    /**  Pass through and the obstacle is destroyed forever */
                     map.splice(nextIdx, 1, " ");
                     responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
                     break;
                 }
-                if (forwardMode) directionIndex = 0;
-                else directionIndex = -1;
-                responseResolveOutputObstacles = setDirectionIndex(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map);
-                responseResolveOutput.currentPositionIndex = responseResolveOutputObstacles.currentPositionIndex;
-                responseResolveOutput.context = responseResolveOutputObstacles.context;
-                directionIndex = responseResolveOutputObstacles.directionIndex
-                shouldTeleport = responseResolveOutputObstacles.shouldTeleport
-                forwardMode = responseResolveOutputObstacles.forwardMode
-                drunk = responseResolveOutputObstacles.drunk
-                map = responseResolveOutputObstacles.map
+                responseHandleObstacles = handleObstacles(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map);
+                responseResolveOutput = responseHandleObstacles.responseResolveOutput;
+                directionIndex = responseHandleObstacles.directionIndex;
+                shouldTeleport = responseHandleObstacles.shouldTeleport;
+                forwardMode = responseHandleObstacles.forwardMode;
+                drunk = responseHandleObstacles.drunk
+                map = responseHandleObstacles.map
                 break;
             case BORDER_TAG:
-                // console.log("BORDER_TAG", currentPositionIndex);
-                if (forwardMode) directionIndex = 0;
-                else directionIndex = -1;
-                responseResolveOutputObstacles = setDirectionIndex(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map);
-                // responseResolveOutput should pass more of its values in final return 
-                responseResolveOutput.currentPositionIndex = responseResolveOutputObstacles.currentPositionIndex;
-                responseResolveOutput.context = responseResolveOutputObstacles.context;
-                directionIndex = responseResolveOutputObstacles.directionIndex
-                shouldTeleport = responseResolveOutputObstacles.shouldTeleport
-                forwardMode = responseResolveOutputObstacles.forwardMode
-                drunk = responseResolveOutputObstacles.drunk
-                map = responseResolveOutputObstacles.map
+                responseHandleObstacles = handleObstacles(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map);
+                responseResolveOutput = responseHandleObstacles.responseResolveOutput;
+                directionIndex = responseHandleObstacles.directionIndex;
+                shouldTeleport = responseHandleObstacles.shouldTeleport;
+                forwardMode = responseHandleObstacles.forwardMode;
+                drunk = responseHandleObstacles.drunk
+                map = responseHandleObstacles.map
                 break;
             
             default:
-                // console.log("Default", currentPositionIndex, directionIndex); 
                 responseResolveOutput = resolveOutput(currentPositionIndex, directionIndex);
         }
-        // console.log("directionIndex before returning: ",exp, directionIndex);
         return {
             currentPositionIndex: responseResolveOutput.currentPositionIndex,
             context: responseResolveOutput.context,
@@ -128,21 +100,39 @@ export function functions(filename:string) {
             map
         }
     }
-    // Indep. Fn
-    const resolveOutput = (currentPositionIndex: number, directionIndex: number) => {
-        let output = "";
-        let context: Const.Context;
-        if(directionIndex >= 0)
-            context = directions[directionIndex  % directions.length];
-        else
-            context = directions[(directions.length - (Math.abs(directionIndex)  % directions.length)) % directions.length];
+    const handleObstacles = (exp: string, currentPositionIndex: number, directionIndex: number, shouldTeleport: boolean, forwardMode: boolean, drunk: boolean, nextIdx: number, map: string[]): Const.IResponseHandleObstacles => {
+        let responseResolveOutput = {currentPositionIndex: 0, context: directions[0]};
+        let responseResolveOutputObstacles: Const.IResponseResolveOutputObstacles;
 
-        output = context["headTo"];
-        // console.log(output);
+        if (forwardMode) directionIndex = FORWARD_MODE_PRIORITY;
+        else directionIndex = BACKWARD_MODE_PRIORITY; 
+
+        responseResolveOutputObstacles = setDirectionIndex(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map);
+        
+        responseResolveOutput.currentPositionIndex = responseResolveOutputObstacles.currentPositionIndex;
+        responseResolveOutput.context = responseResolveOutputObstacles.context;
+        directionIndex = responseResolveOutputObstacles.directionIndex
+        shouldTeleport = responseResolveOutputObstacles.shouldTeleport
+        forwardMode = responseResolveOutputObstacles.forwardMode
+        drunk = responseResolveOutputObstacles.drunk
+        map = responseResolveOutputObstacles.map
+        return {
+            responseResolveOutput,
+            directionIndex,
+            shouldTeleport,
+            forwardMode,
+            drunk,
+            map
+        }
+    }
+    const resolveOutput = (currentPositionIndex: number, directionIndex: number) => {
+        let context: Const.Context;
+        context = getContext(directionIndex);
+
         currentPositionIndex = context["modifier"](currentPositionIndex);
         return { currentPositionIndex, context}
     }
-    const checkMovePossibility = (exp = " ", currentPositionIndex = 0, directionIndex = 0, shouldTeleport = false, forwardMode = true, drunk = false, nextIdx = 0, map: string[]) => {
+    const checkMovePossibility = (exp: string, currentPositionIndex: number, directionIndex: number, shouldTeleport: boolean, forwardMode: boolean, drunk: boolean, nextIdx: number, map: string[]) => {
         let context: Const.Context;
         let character: string;
         let responseResolveOutput = {
@@ -154,70 +144,44 @@ export function functions(filename:string) {
             drunk,
             map
         }
-        // console.log("checkMovePossibility rec. directionIndex", directionIndex);
-
         let res = {obstacleAgain: false, responseResolveOutput: responseResolveOutput};
         let localContext = 0;
-        if(directionIndex >= 0)
-            context = directions[directionIndex  % directions.length];
-        else
-            context = directions[(directions.length - (Math.abs(directionIndex)  % directions.length)) % directions.length];
-        // console.log("checkMovePossibility directionIndex", directionIndex, context);
-        
+        context = getContext(directionIndex);
+
         localContext = context["modifier"](currentPositionIndex);
         character = map[localContext]; 
 
         if (character !== BORDER_TAG && character !== OBSTACLE_TAG ) {
-            // Specify where it gets into
-            // console.log("before", currentPositionIndex);
+            /** Specify where it gets into instead of obstacle */
             responseResolveOutput = handleContext(character, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx = 0, map)
-            // Must take all from the response of handleContext: directionIndex, ...
-            // console.log("after", responseResolveOutput.currentPositionIndex);
-            
             res = {obstacleAgain: false, responseResolveOutput};
-            // console.log("res", res);
-            
             return res;
         }
         return {obstacleAgain: true, responseResolveOutput};
     }
-    const movePossibility = (exp = " ", currentPositionIndex = 0, directionIndex = 0, shouldTeleport = false, forwardMode = true, drunk = false, nextIdx = 0, map: string[], step: number) => {
+    const movePossibility = (exp: string, currentPositionIndex: number, directionIndex: number, shouldTeleport: boolean, forwardMode: boolean, drunk: boolean, nextIdx: number, map: string[], step: number) => {
         let obstacleAgain = true;
         let responseResolveOutput = {
             currentPositionIndex,
-            context: { headTo: 'SOUTH', step: 5, modifier: moveToSouth },
+            context: { headTo: 'SOUTH', step: colNumbers, modifier: moveToSouth },
             directionIndex, 
             shouldTeleport, 
             forwardMode,   
-            drunk,
+            drunk, 
             map
         }
         let res = {obstacleAgain: false, responseResolveOutput: responseResolveOutput};
-        // console.log("movePossibility directionIndex", directionIndex);
-
+        /** Keep looking for the direction until move is possible */
         while (obstacleAgain) {
-            // directionIndex += step;
             res = checkMovePossibility(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map);
             obstacleAgain = res.obstacleAgain;
             if (obstacleAgain) directionIndex += step;
         }
-        // console.log("movePossibility", res.responseResolveOutput);
-        
         return res.responseResolveOutput;
     }
-    // Indep. Fn
-    const setDirectionIndex = (exp = " ", currentPositionIndex = 0, directionIndex = 0, shouldTeleport = false, forwardMode = true, drunk = false, nextIdx = 0, map: string[]) => {
+    const setDirectionIndex = (exp: string, currentPositionIndex: number, directionIndex: number, shouldTeleport: boolean, forwardMode: boolean, drunk: boolean, nextIdx: number, map: string[]) => {
         let step = STEP_FORWARD;
-        let responseResolveOutput = {
-            currentPositionIndex,
-            context: { headTo: 'SOUTH', step: 5, modifier: moveToSouth },
-            directionIndex, 
-            shouldTeleport, 
-            forwardMode,   
-            drunk,
-            map
-        }
-        // console.log("setDirectionIndex ", directionIndex);
+        let responseResolveOutput: Const.IResponseResolveOutputObstacles;
 
         if(forwardMode) {
             return responseResolveOutput = movePossibility(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map, step);
@@ -225,21 +189,25 @@ export function functions(filename:string) {
         step = STEP_BACKWARD;
         return responseResolveOutput = movePossibility(exp, currentPositionIndex, directionIndex, shouldTeleport, forwardMode, drunk, nextIdx, map, step);
     }
-
+    const getContext = (directionIndex: number) => {
+        let context: Const.Context;
+        if(directionIndex >= 0)
+            context = directions[directionIndex  % directions.length];
+        else
+            context = directions[(directions.length - (Math.abs(directionIndex)  % directions.length)) % directions.length];
+        return context;
+    }
     const handleTeleporting = (currentPositionIndex: number, map: string[]) => {
 
-        // In fact, a native loop is faster on chrome that using indexOf
-        // console.log("handleTeleporting", currentPositionIndex);
         let teleportToIndex: number = 0;
+        /** Teleport to the other TELEPORTER_TAG */
         for(let idx = 0; idx < map.length; idx++) {
             if(map[idx] === TELEPORTER_TAG && idx !== currentPositionIndex)
                 teleportToIndex = idx
         }
-        // console.log("teleportToIndex", teleportToIndex);
 
         const shouldTeleport = false;
-        // return false
         return {shouldTeleport, currentPositionIndex: teleportToIndex};
     }
-    return { handleContext, handleTeleporting, directions };
+    return { handleContext, handleTeleporting, getContext, directions };
 } 

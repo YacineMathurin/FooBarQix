@@ -1,4 +1,4 @@
-export const _SIMPLE_MOVE = [ 'SOUTH', 'EAST', 'EAST', 'NORTH' ];
+export const _SIMPLE_MOVE = [ 'SOUTH', 'SOUTH', 'EAST', 'EAST' ];
 export const _OBSTACLES = [
     'SOUTH', 'EAST',
     'EAST',  'EAST',
