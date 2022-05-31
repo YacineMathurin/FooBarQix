@@ -1,54 +1,15 @@
-import { App } from "../app";
-import { _ALL_TOGETHER, _BREAKER_MODE, _BROKEN_WALL, _INVERTER, _LOOP, _MULTIPLE_LOOPS, _OBSTACLES, _PATH_MODIFIER, _PRIORITIES, _SIMPLE_MOVE, _STRAIGHT_LINE, _TELEPORT } from "./test.constants";
+import { compute } from "../app";
 
-describe('Testing my App', () => {
+describe("", () => {
+  it("Should output string if string isn't 3 or 5 or 7", () => {
+    expect(compute("1")).toBe("1");
+  });
+  it("Should output FooQix", () => {
+    console.log(compute("21"));
 
-    test('Simple moves', () => {
-        const filename = "Simple moves.txt";
-        expect(App(filename)).toStrictEqual(_SIMPLE_MOVE)
-    })
-    test('Obstacles', () => {
-        const filename = "obstacles.txt";
-        expect(App(filename)).toStrictEqual(_OBSTACLES)
-    })
-    test('Priorities', () => {
-        const filename = "priorities.txt";
-        expect(App(filename)).toStrictEqual(_PRIORITIES)
-    })
-    test('Straight line', () => {
-        const filename = "Straight line.txt";
-        expect(App(filename)).toStrictEqual(_STRAIGHT_LINE)
-    })
-    test('Path modifier', () => {
-        const filename = "Path modifier.txt";
-        expect(App(filename)).toStrictEqual(_PATH_MODIFIER)
-    })
-    test('Breaker mode', () => {
-        const filename = "Breaker mode.txt";
-        expect(App(filename)).toStrictEqual(_BREAKER_MODE)
-    })
-    test('Inverter', () => {
-        const filename = "Inverter.txt";
-        expect(App(filename)).toStrictEqual(_INVERTER)
-    })
-    test('Teleport', () => {
-        const filename = "Teleport.txt";
-        expect(App(filename)).toStrictEqual(_TELEPORT)
-    })
-    test('Broken wall', () => {
-        const filename = "Broken wall.txt";
-        expect(App(filename)).toStrictEqual(_BROKEN_WALL)
-    })
-    test('All together', () => {
-        const filename = "All together.txt";
-        expect(App(filename)).toStrictEqual(_ALL_TOGETHER)
-    })
-    test('Loop', () => {
-        const filename = "Loop.txt";
-        expect(App(filename)).toStrictEqual(_LOOP)
-    })
-    test('Multiple loops', () => {
-        const filename = "Multiple loops.txt";
-        expect(App(filename)).toStrictEqual(_MULTIPLE_LOOPS);
-    })
+    expect(compute("21")).toBe("FooQix");
+  });
+  it("Should output by digits order", () => {
+    expect(compute("53")).toBe("BarFoo");
+  });
 });
