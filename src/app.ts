@@ -1,75 +1,76 @@
 var output = "";
-var possibleOutput = "";
+var outputNotDivisible = "";
 
 class ComputeCase {
   response: string;
   character: string;
   divisibilityChecked: boolean;
-  containsChecked: boolean;
+  foundCharacter: boolean;
 
   constructor(respondBy: string, character: string) {
     this.response = respondBy;
     this.character = character;
     this.divisibilityChecked = false;
-    this.containsChecked = false;
+    this.foundCharacter = false;
   }
 
   handleResponse(str: string, String: string) {
     if (!this.divisibilityChecked) this.checkDivisibility(String);
     this.checkOccurance(str);
   }
-
   checkDivisibility(String: string) {
     if (Number(String) % Number(this.character) === 0) output += this.response;
     this.divisibilityChecked = true;
   }
   checkOccurance(str: string) {
-    // console.log("checkOccurance", str, this.containsChecked);
-
     if (str === this.character) {
       output += this.response;
-      this.containsChecked = true;
+      this.foundCharacter = true;
     } else if (str === "0" && output !== "") {
       output += "*";
-      this.containsChecked = true;
+      this.foundCharacter = true;
+    } else {
     }
-    // possibleOutput += str;
-    // this.containsChecked = true;
+  }
+  resetFoundCharacter() {
+    this.foundCharacter = false;
   }
 }
 
-const printOut = (str: string) => {
+const printOut = () => {
   if (output === "") {
-    possibleOutput = possibleOutput.replace("0", "*");
-    console.log(possibleOutput);
-    return possibleOutput;
+    outputNotDivisible = outputNotDivisible.replace("0", "*");
+    return outputNotDivisible;
   }
-  console.log(output);
   return output;
 };
 
+const validateInput = (input: string) => {
+  // Could use joi validation to be more realistic
+  if (isNaN(Number(input)) || input === "")
+    return console.log("Please enter number as string");
+};
+
 export function compute(String: string) {
+  validateInput(String);
   const splitedStr = String.split("");
 
   for (let index = 0; index < splitedStr.length; index++) {
+    const character = splitedStr[index];
+
     for (let idx = 0; idx < rules.length; idx++) {
       const computeCase = rules[idx];
-      console.log(
-        "New ComputeCase ContainsChecked",
-        computeCase.containsChecked
-      );
+      computeCase.handleResponse(character, String);
 
-      computeCase.handleResponse(splitedStr[index], String);
-
-      if (computeCase.containsChecked) {
-        computeCase.containsChecked = false;
+      if (computeCase.foundCharacter) {
+        computeCase.resetFoundCharacter();
         break;
       }
     }
-    if (output === "") possibleOutput += splitedStr[index];
+    if (output === "") outputNotDivisible += character;
   }
 
-  return printOut(String);
+  return printOut();
 }
 
 const rules = new Array(
@@ -78,4 +79,4 @@ const rules = new Array(
   new ComputeCase("Qix", "7")
 );
 
-compute("51");
+// console.log(compute("105"));
