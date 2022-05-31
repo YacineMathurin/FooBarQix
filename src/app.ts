@@ -1,13 +1,17 @@
 var output = "";
+var possibleOutput = "";
 
 class ComputeCase {
   response: string;
   character: string;
   divisibilityChecked: boolean;
+  containsChecked: boolean;
+
   constructor(respondBy: string, character: string) {
     this.response = respondBy;
     this.character = character;
     this.divisibilityChecked = false;
+    this.containsChecked = false;
   }
 
   handleResponse(str: string, String: string) {
@@ -20,25 +24,51 @@ class ComputeCase {
     this.divisibilityChecked = true;
   }
   checkOccurance(str: string) {
-    const occurances = str.split(this.character).length - 1;
-    for (let index = 0; index < occurances; index++) output += this.response;
+    // console.log("checkOccurance", str, this.containsChecked);
+
+    if (str === this.character) {
+      output += this.response;
+      this.containsChecked = true;
+    } else if (str === "0" && output !== "") {
+      output += "*";
+      this.containsChecked = true;
+    }
+    // possibleOutput += str;
+    // this.containsChecked = true;
   }
 }
 
 const printOut = (str: string) => {
   if (output === "") {
-    // console.log(str);
-    return str;
+    possibleOutput = possibleOutput.replace("0", "*");
+    console.log(possibleOutput);
+    return possibleOutput;
   }
-  //   console.log("Output", output);
+  console.log(output);
   return output;
 };
 
 export function compute(String: string) {
-  const str = String.split("");
-  str.map((char) => {
-    rules.map((rule) => rule.handleResponse(char, String));
-  });
+  const splitedStr = String.split("");
+
+  for (let index = 0; index < splitedStr.length; index++) {
+    for (let idx = 0; idx < rules.length; idx++) {
+      const computeCase = rules[idx];
+      console.log(
+        "New ComputeCase ContainsChecked",
+        computeCase.containsChecked
+      );
+
+      computeCase.handleResponse(splitedStr[index], String);
+
+      if (computeCase.containsChecked) {
+        computeCase.containsChecked = false;
+        break;
+      }
+    }
+    if (output === "") possibleOutput += splitedStr[index];
+  }
+
   return printOut(String);
 }
 
@@ -48,4 +78,4 @@ const rules = new Array(
   new ComputeCase("Qix", "7")
 );
 
-// compute("21");
+compute("51");
